@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import { SitesPage } from './components';
+import { SitesPage, ChatPage } from './components';
 import './App.css';
 
 function App() {
@@ -11,8 +11,11 @@ function App() {
           <Link to="/" style={{ marginRight: '20px', textDecoration: 'none', color: '#007bff' }}>
             Home
           </Link>
-          <Link to="/sites" style={{ textDecoration: 'none', color: '#007bff' }}>
+          <Link to="/sites" style={{ marginRight: '20px', textDecoration: 'none', color: '#007bff' }}>
             Sites
+          </Link>
+          <Link to="/chat" style={{ textDecoration: 'none', color: '#007bff' }}>
+            Chat
           </Link>
         </nav>
 
@@ -25,6 +28,7 @@ function App() {
           } />
           <Route path="/sites" element={<SitesPage />} />
           <Route path="/sites/:id" element={<SitesPage />} />
+          <Route path="/chat" element={<ChatPage />} />
         </Routes>
       </div>
     </Router>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Polygon } from 'react-leaflet';
 import L from 'leaflet';
 import { Site } from '../../models';
 import { MapCenter } from './MapCenter';
@@ -46,22 +46,54 @@ export const SiteMap: React.FC<SiteMapProps> = ({
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        {sites.map((site) => (
-          <Marker
-            key={site.id}
-            position={[site.latitude, site.longitude]}
-            eventHandlers={{
-              click: () => onMarkerClick(site),
-            }}
-          >
-            <Popup>
-              <div>
-                <h3>{site.name}</h3>
-                <p>{site.description}</p>
-              </div>
-            </Popup>
-          </Marker>
-        ))}
+        {sites.map((site) => {
+          if (site.isPoint) {
+            const coords = site.pointCoordinates!;
+            return (
+              <Marker
+                key={site.id}
+                position={coords}
+                eventHandlers={{
+                  click: () => onMarkerClick(site),
+                }}
+              >
+                <Popup>
+                  <div>
+                    <h3>{site.name}</h3>
+                    <p><strong>Type:</strong> Point Location</p>
+                    <p>{site.description}</p>
+                  </div>
+                </Popup>
+              </Marker>
+            );
+          } else if (site.isArea) {
+            const coords = site.areaCoordinates!;
+            return (
+              <Polygon
+                key={site.id}
+                positions={coords}
+                pathOptions={{
+                  fillColor: '#3388ff',
+                  fillOpacity: 0.3,
+                  color: '#3388ff',
+                  weight: 2,
+                }}
+                eventHandlers={{
+                  click: () => onMarkerClick(site),
+                }}
+              >
+                <Popup>
+                  <div>
+                    <h3>{site.name}</h3>
+                    <p><strong>Type:</strong> Area ({coords.length - 1} points)</p>
+                    <p>{site.description}</p>
+                  </div>
+                </Popup>
+              </Polygon>
+            );
+          }
+          return null;
+        })}
       </MapContainer>
     </div>
   );
