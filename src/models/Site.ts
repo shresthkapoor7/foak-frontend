@@ -174,25 +174,25 @@ export class Site {
   }
 
   get profitabilityScore(): number | null {
-    if (!this.analysis) return null;
+    // if (!this.analysis) return null;
 
-    // Check if new format has viability_score
+    // // Check if new format has viability_score
     if (this.isNewAnalysisFormat) {
       const newAnalysis = this.analysis as SiteAnalysis;
-      return newAnalysis.viability_score ? newAnalysis.viability_score * 10 : null; // Convert 1-10 to 10-100 scale
+      return newAnalysis.viability_score ? newAnalysis.viability_score : null; // Convert 1-10 to 10-100 scale
     }
 
-    // Legacy scoring algorithm for old format
-    if (this.isLegacyAnalysisFormat) {
-      const legacyAnalysis = this.analysis as LegacySiteAnalysis;
-      const scalabilityWeight = legacyAnalysis.market_demand.scalability_rating * 20;
-      const accessWeight = legacyAnalysis.market_demand.has_pipeline_access ? 20 : 0;
-      const incentiveWeight = legacyAnalysis.financial_incentives.tax_credits_available ? 15 : 0;
-      const capacityWeight = Math.min(legacyAnalysis.market_demand.methane_capacity_tons / 1000, 25);
-      const customerWeight = Math.min(legacyAnalysis.market_demand.customer_count_within_50km / 10, 20);
+    // // Legacy scoring algorithm for old format
+    // if (this.isLegacyAnalysisFormat) {
+    //   const legacyAnalysis = this.analysis as LegacySiteAnalysis;
+    //   const scalabilityWeight = legacyAnalysis.market_demand.scalability_rating * 20;
+    //   const accessWeight = legacyAnalysis.market_demand.has_pipeline_access ? 20 : 0;
+    //   const incentiveWeight = legacyAnalysis.financial_incentives.tax_credits_available ? 15 : 0;
+    //   const capacityWeight = Math.min(legacyAnalysis.market_demand.methane_capacity_tons / 1000, 25);
+    //   const customerWeight = Math.min(legacyAnalysis.market_demand.customer_count_within_50km / 10, 20);
 
-      return Math.min(scalabilityWeight + accessWeight + incentiveWeight + capacityWeight + customerWeight, 100);
-    }
+    //   return viabilityScore;
+    // }
 
     return null;
   }

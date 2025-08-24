@@ -383,10 +383,10 @@ export const SiteDetails: React.FC<SiteDetailsProps> = ({
                       {site.hasAnalysis && (
                         <span style={{
                           fontSize: '10px',
-                          backgroundColor: site.profitabilityScore && site.profitabilityScore >= 70 ? '#d4edda' :
-                                         site.profitabilityScore && site.profitabilityScore >= 50 ? '#fff3cd' : '#f8d7da',
-                          color: site.profitabilityScore && site.profitabilityScore >= 70 ? '#155724' :
-                                site.profitabilityScore && site.profitabilityScore >= 50 ? '#856404' : '#721c24',
+                          backgroundColor: site.profitabilityScore && site.profitabilityScore >= 7 ? '#d4edda' :
+                                         site.profitabilityScore && site.profitabilityScore >= 5 ? '#fff3cd' : '#f8d7da',
+                          color: site.profitabilityScore && site.profitabilityScore >= 7 ? '#155724' :
+                                site.profitabilityScore && site.profitabilityScore >= 5 ? '#856404' : '#721c24',
                           padding: '2px 4px',
                           borderRadius: '2px',
                           fontWeight: 'bold'
