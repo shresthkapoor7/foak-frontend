@@ -41,13 +41,26 @@ ${index + 1}. ${site.name} (ID: ${site.id})
 
       if (site.hasAnalysis && site.analysis) {
         context += `
-   - Profitability Score: ${site.profitabilityScore?.toFixed(1) || 'N/A'}/100
-   - Energy Pricing: $${site.analysis.energy_pricing.electricity_price_per_kwh}/kWh electricity, $${site.analysis.energy_pricing.co2_price_per_ton}/ton CO2
-   - Market: ${site.analysis.market_demand.methane_capacity_tons.toLocaleString()} tons/year capacity, ${site.analysis.market_demand.customer_count_within_50km} customers within 50km
-   - Pipeline Access: ${site.analysis.market_demand.has_pipeline_access ? 'Yes' : 'No'}
-   - Scalability: ${site.analysis.market_demand.scalability_rating}/5
-   - Available Grants: $${site.analysis.financial_incentives.available_grants_usd.toLocaleString()}
-   - Tax Credits: ${site.analysis.financial_incentives.tax_credits_available ? 'Available' : 'Not Available'}`;
+   - Profitability Score: ${site.profitabilityScore?.toFixed(1) || 'N/A'}/100`;
+
+        if (site.isNewAnalysisFormat) {
+          context += `
+   - Primary Product: ${site.primaryProduct}
+   - Market Price: $${site.marketPrice}/ton
+   - Electricity Price: $${site.electricityPrice}/kWh
+   - Can sell 100 tons within 100km: ${(site.analysis as any).can_sell_100_tons_primary_product_within_100_km ? 'Yes' : 'No'}
+   - Other Products: ${site.otherViableProducts.join(', ')}
+   - Available Incentives: ${site.availableIncentives.length} incentives available`;
+        } else if (site.isLegacyAnalysisFormat) {
+          const legacyAnalysis = site.analysis as any;
+          context += `
+   - Energy Pricing: $${legacyAnalysis.energy_pricing.electricity_price_per_kwh}/kWh electricity, $${legacyAnalysis.energy_pricing.co2_price_per_ton}/ton CO2
+   - Market: ${legacyAnalysis.market_demand.methane_capacity_tons.toLocaleString()} tons/year capacity, ${legacyAnalysis.market_demand.customer_count_within_50km} customers within 50km
+   - Pipeline Access: ${legacyAnalysis.market_demand.has_pipeline_access ? 'Yes' : 'No'}
+   - Scalability: ${legacyAnalysis.market_demand.scalability_rating}/5
+   - Available Grants: $${legacyAnalysis.financial_incentives.available_grants_usd.toLocaleString()}
+   - Tax Credits: ${legacyAnalysis.financial_incentives.tax_credits_available ? 'Available' : 'Not Available'}`;
+        }
       } else {
         context += `
    - Analysis: Not available`;
@@ -81,22 +94,47 @@ ${index + 1}. ${site.name} (ID: ${site.id})
 
 Site Analysis:
 - Profitability Score: ${site.profitabilityScore?.toFixed(1) || 'N/A'}/100
-- Last Updated: ${new Date(site.analysis.last_updated).toLocaleString()}
+- Last Updated: ${new Date(site.analysis.last_updated).toLocaleString()}`;
+
+      if (site.isNewAnalysisFormat) {
+        context += `
+
+Product Analysis:
+- Primary Product: ${site.primaryProduct}
+- Market Price: $${site.marketPrice}/ton
+- Electricity Price: $${site.electricityPrice}/kWh
+- Can sell 100 tons within 100km: ${(site.analysis as any).can_sell_100_tons_primary_product_within_100_km ? 'Yes' : 'No'}
+
+Other Viable Products:
+${site.otherViableProducts.map(p => `- ${p}`).join('\n')}
+
+Available Incentives:
+${site.availableIncentives.map(i => `- ${i}`).join('\n')}
+
+Executive Summary:
+${site.executiveSummary}
+
+Business Analysis:
+${site.businessAnalysis}`;
+      } else if (site.isLegacyAnalysisFormat) {
+        const legacyAnalysis = site.analysis as any;
+        context += `
 
 Energy Pricing:
-- Electricity Price: $${site.analysis.energy_pricing.electricity_price_per_kwh}/kWh
-- CO2 Credit Price: $${site.analysis.energy_pricing.co2_price_per_ton}/ton
+- Electricity Price: $${legacyAnalysis.energy_pricing.electricity_price_per_kwh}/kWh
+- CO2 Credit Price: $${legacyAnalysis.energy_pricing.co2_price_per_ton}/ton
 
 Market Demand:
-- Methane Capacity: ${site.analysis.market_demand.methane_capacity_tons.toLocaleString()} tons/year
-- Customers within 50km: ${site.analysis.market_demand.customer_count_within_50km}
-- Pipeline Access: ${site.analysis.market_demand.has_pipeline_access ? 'Yes' : 'No'}
-- Scalability Rating: ${site.analysis.market_demand.scalability_rating}/5
+- Methane Capacity: ${legacyAnalysis.market_demand.methane_capacity_tons.toLocaleString()} tons/year
+- Customers within 50km: ${legacyAnalysis.market_demand.customer_count_within_50km}
+- Pipeline Access: ${legacyAnalysis.market_demand.has_pipeline_access ? 'Yes' : 'No'}
+- Scalability Rating: ${legacyAnalysis.market_demand.scalability_rating}/5
 
 Financial Incentives:
-- Available Grants: $${site.analysis.financial_incentives.available_grants_usd.toLocaleString()}
-- Tax Credits Available: ${site.analysis.financial_incentives.tax_credits_available ? 'Yes' : 'No'}
-- Incentive Summary: ${site.analysis.financial_incentives.incentive_summary}`;
+- Available Grants: $${legacyAnalysis.financial_incentives.available_grants_usd.toLocaleString()}
+- Tax Credits Available: ${legacyAnalysis.financial_incentives.tax_credits_available ? 'Yes' : 'No'}
+- Incentive Summary: ${legacyAnalysis.financial_incentives.incentive_summary}`;
+      }
     } else {
       context += `
 

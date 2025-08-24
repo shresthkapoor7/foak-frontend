@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Site } from '../../models';
+import { apiService } from '../../services/apiService';
 import { sampleSites } from '../../data/sampleSites';
 import { SiteMap } from '../map/SiteMap';
 import { SiteDetails } from '../map/SiteDetails';
@@ -27,14 +28,47 @@ const SitesPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const [sites, setSites] = useState<Site[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [testingConnection, setTestingConnection] = useState(false);
   const [selectedSite, setSelectedSite] = useState<Site | null>(null);
   const [mapCenter, setMapCenter] = useState<[number, number] | null>(null);
   const [showCSVViewer, setShowCSVViewer] = useState(false);
 
+    // Effect to fetch sites data from API
+  useEffect(() => {
+    // TODO: Uncomment when API CORS issues are resolved
+    // const fetchSites = async () => {
+    //   setLoading(true);
+    //   setError(null);
+    //
+    //   const response = await apiService.getLatestSiteAnalyses();
+    //
+    //   if (response.error) {
+    //     setError(response.error);
+    //     setSites([]);
+    //   } else {
+    //     setSites(response.data);
+    //   }
+    //
+    //   setLoading(false);
+    // };
+    // fetchSites();
+
+    // Temporarily using sample sites directly
+    setLoading(true);
+    // Simulate loading delay
+    setTimeout(() => {
+      setSites(sampleSites);
+      setLoading(false);
+    }, 500);
+  }, []);
+
   // Effect to handle URL parameter changes
   useEffect(() => {
-    if (id) {
-      const site = sampleSites.find(s => s.id === id);
+    if (id && sites.length > 0) {
+      const site = sites.find(s => s.id === id);
       if (site) {
         setSelectedSite(site);
         const center = site.centerPoint;
@@ -43,9 +77,17 @@ const SitesPage: React.FC = () => {
     } else {
       setSelectedSite(null);
       // Reset to overview when no site is selected
-      setMapCenter([40.7580, -73.9855]); // Times Square overview position
+      if (sites.length > 0) {
+        // Center on the first site for overview
+        const firstSite = sites[0];
+        const center = firstSite.centerPoint;
+        setMapCenter([center.latitude, center.longitude]);
+      } else {
+        // Default fallback position
+        setMapCenter([40.7580, -73.9855]);
+      }
     }
-  }, [id]);
+  }, [id, sites]);
 
   const handleMarkerClick = (site: Site) => {
     navigate(`/sites/${site.id}`);
@@ -60,7 +102,7 @@ const SitesPage: React.FC = () => {
   };
 
   const handleDownloadCSV = () => {
-    generateSitesCSV(sampleSites);
+    generateSitesCSV(sites);
   };
 
   const handleViewCSV = () => {
@@ -71,8 +113,124 @@ const SitesPage: React.FC = () => {
     setShowCSVViewer(false);
   };
 
+  const handleTestConnection = async () => {
+    setTestingConnection(true);
+    const result = await apiService.testApiConnection();
+    alert(result.details);
+    setTestingConnection(false);
+  };
+
+  // Loading state
+  if (loading) {
     return (
-    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <div style={{
+        height: 'calc(100vh - 80px)',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        flexDirection: 'column',
+        gap: '20px'
+      }}>
+        <div style={{
+          width: '50px',
+          height: '50px',
+          border: '5px solid #f3f3f3',
+          borderTop: '5px solid #007bff',
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite'
+        }}></div>
+        <h3 style={{ color: '#495057', margin: 0 }}>Loading sites data...</h3>
+        <p style={{ color: '#6c757d', margin: 0 }}>Fetching latest site analyses from backend</p>
+        <style>
+          {`
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          `}
+        </style>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div style={{
+        height: 'calc(100vh - 80px)',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        flexDirection: 'column',
+        gap: '20px',
+        padding: '20px'
+      }}>
+        <div style={{
+          backgroundColor: '#f8d7da',
+          color: '#721c24',
+          padding: '20px',
+          borderRadius: '8px',
+          border: '1px solid #f5c6cb',
+          maxWidth: '500px',
+          textAlign: 'center'
+        }}>
+          <h3 style={{ margin: '0 0 10px 0' }}>⚠️ Error Loading Sites</h3>
+          <p style={{ margin: '0 0 15px 0' }}>{error}</p>
+          <div style={{ fontSize: '12px', color: '#6c757d', marginBottom: '15px', textAlign: 'left' }}>
+            <strong>API Endpoint:</strong> https://foak-backend-production.up.railway.app/site-analyses/latest<br />
+            <strong>Common Issues:</strong>
+            <ul style={{ margin: '5px 0', paddingLeft: '20px' }}>
+              <li>CORS policy blocking cross-origin requests</li>
+              <li>Backend server temporarily unavailable</li>
+              <li>Network connectivity issues</li>
+            </ul>
+            <strong>Note:</strong> If API fails, sample data will be used as fallback.
+          </div>
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center' }}>
+            <button
+              onClick={() => window.location.reload()}
+              style={{
+                backgroundColor: '#dc3545',
+                color: 'white',
+                border: 'none',
+                padding: '10px 20px',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontWeight: 'bold'
+              }}
+            >
+              🔄 Retry
+            </button>
+            <button
+              onClick={handleTestConnection}
+              disabled={testingConnection}
+              style={{
+                backgroundColor: testingConnection ? '#6c757d' : '#007bff',
+                color: 'white',
+                border: 'none',
+                padding: '10px 20px',
+                borderRadius: '4px',
+                cursor: testingConnection ? 'not-allowed' : 'pointer',
+                fontWeight: 'bold'
+              }}
+            >
+              {testingConnection ? '🔄 Testing...' : '🧪 Test API'}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="sites-page"
+      style={{
+        height: 'calc(100vh - 80px)', // Account for navigation height
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden'
+      }}>
       {/* Header with CSV Download Buttons - only show when no site is selected */}
       {!selectedSite && (
         <div style={{
@@ -87,10 +245,10 @@ const SitesPage: React.FC = () => {
         }}>
           <div>
             <h3 style={{ margin: 0, color: '#495057' }}>
-              Sites Overview ({sampleSites.length} sites)
+              Sites Overview ({sites.length} sites)
             </h3>
             <div style={{ fontSize: '12px', color: '#6c757d', marginTop: '2px' }}>
-              {sampleSites.filter(s => s.hasAnalysis).length} sites with analysis data
+              {sites.filter(s => s.hasAnalysis).length} sites with analysis data
             </div>
           </div>
 
@@ -145,12 +303,14 @@ const SitesPage: React.FC = () => {
         style={{
           display: 'flex',
           flex: 1,
-          height: selectedSite ? '100%' : 'calc(100% - 70px)',
-          flexDirection: isMobile ? 'column' : 'row'
+          height: '100%',
+          minHeight: 0, // Important for flex children
+          flexDirection: isMobile ? 'column' : 'row',
+          overflow: 'hidden'
         }}
       >
         <SiteMap
-          sites={sampleSites}
+          sites={sites}
           selectedSite={selectedSite}
           mapCenter={mapCenter}
           onMarkerClick={handleMarkerClick}
@@ -159,7 +319,7 @@ const SitesPage: React.FC = () => {
 
         <SiteDetails
           selectedSite={selectedSite}
-          sites={sampleSites}
+          sites={sites}
           onSiteClick={handleSiteListClick}
           onBackToSites={handleBackToSites}
           isMobile={isMobile}
@@ -168,7 +328,7 @@ const SitesPage: React.FC = () => {
 
       {/* CSV Viewer Modal */}
       <CSVViewer
-        sites={sampleSites}
+        sites={sites}
         isOpen={showCSVViewer}
         onClose={handleCloseCSVViewer}
         isMobile={isMobile}

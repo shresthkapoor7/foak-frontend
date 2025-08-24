@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Site } from '../../models';
 import { sampleSites } from '../../data/sampleSites';
+import { apiService } from '../../services/apiService';
 import { geminiService } from '../../services/geminiService';
 
 interface ChatMessage {
@@ -35,17 +36,51 @@ const ChatPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const [sites, setSites] = useState<Site[]>([]);
+  const [sitesLoading, setSitesLoading] = useState(true);
+  const [sitesError, setSitesError] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [conversationHistory, setConversationHistory] = useState<ConversationHistoryItem[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+    // Fetch sites data from API
+  useEffect(() => {
+    // TODO: Uncomment when API CORS issues are resolved
+    // const fetchSites = async () => {
+    //   setSitesLoading(true);
+    //   setSitesError(null);
+    //
+    //   const response = await apiService.getLatestSiteAnalyses();
+    //
+    //   if (response.error) {
+    //     setSitesError(response.error);
+    //     setSites([]);
+    //   } else {
+    //     setSites(response.data);
+    //   }
+    //
+    //   setSitesLoading(false);
+    // };
+    // fetchSites();
+
+    // Temporarily using sample sites directly
+    setSitesLoading(true);
+    setTimeout(() => {
+      setSites(sampleSites);
+      setSitesLoading(false);
+    }, 300);
+  }, []);
+
   // Add welcome message with sites context
   useEffect(() => {
-    const welcomeMessage: ChatMessage = {
-      id: Date.now().toString(),
-      text: `Hello! I'm your AI assistant with access to your complete sites database (${sampleSites.length} sites). I can help you with:
+    if (!sitesLoading) {
+      const welcomeMessage: ChatMessage = {
+        id: Date.now().toString(),
+        text: sitesError
+          ? `Hello! I'm your AI assistant. Unfortunately, I'm having trouble accessing your sites database right now due to: ${sitesError}. You can still ask me general questions about energy project planning and CO2 utilization!`
+          : `Hello! I'm your AI assistant with access to your complete sites database (${sites.length} sites). I can help you with:
 
 • Site comparisons and recommendations
 • Investment opportunity analysis
@@ -54,11 +89,12 @@ const ChatPage: React.FC = () => {
 • Portfolio analysis and planning
 
 Ask me anything about your sites or energy project planning!`,
-      isUser: false,
-      timestamp: new Date()
-    };
-    setMessages([welcomeMessage]);
-  }, []);
+        isUser: false,
+        timestamp: new Date()
+      };
+      setMessages([welcomeMessage]);
+    }
+  }, [sitesLoading, sitesError, sites.length]);
 
   // Scroll to bottom when new messages are added
   useEffect(() => {
@@ -94,7 +130,7 @@ Ask me anything about your sites or energy project planning!`,
       const response = await geminiService.sendMessage(
         inputMessage,
         undefined,
-        sampleSites,
+        sites.length > 0 ? sites : undefined,
         conversationHistory
       );
 
@@ -145,7 +181,9 @@ Ask me anything about your sites or energy project planning!`,
         <div>
           <h3 style={{ margin: 0, color: '#495057' }}>
             AI Chat Assistant
-            <span style={{ fontWeight: 'normal', fontSize: '14px', color: '#6c757d' }}> - Sites Portfolio</span>
+            <span style={{ fontWeight: 'normal', fontSize: '14px', color: '#6c757d' }}>
+              {sitesLoading ? ' - Loading...' : sitesError ? ' - Error' : ` - Sites Portfolio (${sites.length})`}
+            </span>
           </h3>
         </div>
 

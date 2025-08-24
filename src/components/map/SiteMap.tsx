@@ -32,14 +32,26 @@ export const SiteMap: React.FC<SiteMapProps> = ({
     <div
       style={{
         flex: 1,
-        height: isMobile ? '50vh' : '100vh',
-        minHeight: isMobile ? '300px' : 'auto'
+        height: isMobile ? '50vh' : '100%',
+        minHeight: isMobile ? '300px' : '400px',
+        maxHeight: '100%',
+        overflow: 'hidden',
+        position: 'relative'
       }}
     >
       <MapContainer
         center={[40.7580, -73.9855]} // Center on Times Square
         zoom={10}
-        style={{ height: '100%', width: '100%' }}
+        style={{
+          height: '100%',
+          width: '100%',
+          border: 'none',
+          outline: 'none'
+        }}
+        scrollWheelZoom={true}
+        doubleClickZoom={true}
+        dragging={true}
+        zoomControl={true}
       >
         <MapCenter center={mapCenter} isOverview={!selectedSite} />
         <TileLayer

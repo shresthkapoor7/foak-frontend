@@ -5,6 +5,28 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden; /* Prevent horizontal scroll */
+}
+
+/* Prevent the map from interfering with page scroll */
+.leaflet-container {
+  height: 100% !important;
+  width: 100% !important;
+}
+
+/* Ensure proper flex behavior */
+.leaflet-container .leaflet-control-container {
+  pointer-events: auto;
+}
+
+/* Fix any overflow issues */
+#root {
+  height: 100vh;
+}
+
+/* Only apply overflow hidden to sites page specifically */
+.sites-page {
+  overflow: hidden;
 }
 
 code {

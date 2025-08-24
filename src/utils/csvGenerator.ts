@@ -1,8 +1,9 @@
 import { Site } from '../models';
 
 export const generateSitesCSV = (sites: Site[]): void => {
-  // Define CSV headers
+  // Define CSV headers - comprehensive format supporting both new and legacy data
   const headers = [
+    // Basic Site Information
     'Site ID',
     'Name',
     'Type',
@@ -11,18 +12,49 @@ export const generateSitesCSV = (sites: Site[]): void => {
     'Center Latitude',
     'Center Longitude',
     'Description',
+
+    // Analysis Overview
     'Has Analysis',
+    'Analysis Format',
     'Profitability Score',
+    'Raw Viability Score (1-10)',
+
+    // New Format - Product Analysis
+    'Primary Product',
+    'Market Price ($/ton)',
     'Electricity Price ($/kWh)',
-    'CO2 Price ($/ton)',
-    'Methane Capacity (tons/year)',
-    'Customers within 50km',
-    'Pipeline Access',
-    'Scalability Rating',
-    'Available Grants ($)',
-    'Tax Credits Available',
-    'Incentive Summary',
-    'Last Updated'
+    'Can Sell 100+ tons within 100km',
+    'Other Viable Products',
+    'Other Products Count',
+
+    // New Format - Financial Incentives
+    'Available Incentives',
+    'Incentives Count',
+
+    // New Format - Analysis Content
+    'Executive Summary',
+    'Business Analysis',
+    'Cited Sources Count',
+    'Location Name (Backend)',
+
+    // Legacy Format - Energy Pricing
+    'CO2 Price ($/ton) [Legacy]',
+
+    // Legacy Format - Market Demand
+    'Methane Capacity (tons/year) [Legacy]',
+    'Customers within 50km [Legacy]',
+    'Pipeline Access [Legacy]',
+    'Scalability Rating [Legacy]',
+
+    // Legacy Format - Financial Incentives
+    'Available Grants ($) [Legacy]',
+    'Tax Credits Available [Legacy]',
+    'Incentive Summary [Legacy]',
+
+    // Metadata
+    'Site ID (Backend)',
+    'Last Updated',
+    'Export Date'
   ];
 
   // Helper function to escape CSV values
@@ -64,7 +96,32 @@ export const generateSitesCSV = (sites: Site[]): void => {
     const coords = getCoordinatesForCSV(site);
     const analysis = site.analysis;
 
+    // Helper function to get legacy analysis data safely
+    const getLegacyData = (path: string, defaultValue: any = '') => {
+      if (!site.isLegacyAnalysisFormat || !analysis) return defaultValue;
+      const parts = path.split('.');
+      let value = analysis as any;
+      for (const part of parts) {
+        value = value?.[part];
+        if (value === undefined) return defaultValue;
+      }
+      return value;
+    };
+
+    // Get raw viability score from new format
+    const rawViabilityScore = site.isNewAnalysisFormat && analysis ?
+      (analysis as any).viability_score : '';
+
+    // Get backend site ID from new format
+    const backendSiteId = site.isNewAnalysisFormat && analysis ?
+      (analysis as any).site_id : '';
+
+    // Get location name from new format
+    const locationName = site.isNewAnalysisFormat && analysis ?
+      (analysis as any).location_name : '';
+
     return [
+      // Basic Site Information
       escapeCSV(site.id),
       escapeCSV(site.name),
       escapeCSV(site.type === 'point' ? 'Point' : 'Area'),
@@ -73,18 +130,52 @@ export const generateSitesCSV = (sites: Site[]): void => {
       escapeCSV(coords.centerLatitude.toFixed(6)),
       escapeCSV(coords.centerLongitude.toFixed(6)),
       escapeCSV(site.description),
+
+      // Analysis Overview
       escapeCSV(site.hasAnalysis ? 'Yes' : 'No'),
+      escapeCSV(site.isNewAnalysisFormat ? 'New' : site.isLegacyAnalysisFormat ? 'Legacy' : 'None'),
       escapeCSV(site.profitabilityScore?.toFixed(1) || ''),
-      escapeCSV(analysis?.energy_pricing.electricity_price_per_kwh || ''),
-      escapeCSV(analysis?.energy_pricing.co2_price_per_ton || ''),
-      escapeCSV(analysis?.market_demand.methane_capacity_tons || ''),
-      escapeCSV(analysis?.market_demand.customer_count_within_50km || ''),
-      escapeCSV(analysis?.market_demand.has_pipeline_access ? 'Yes' : analysis?.market_demand.has_pipeline_access === false ? 'No' : ''),
-      escapeCSV(analysis?.market_demand.scalability_rating || ''),
-      escapeCSV(analysis?.financial_incentives.available_grants_usd || ''),
-      escapeCSV(analysis?.financial_incentives.tax_credits_available ? 'Yes' : analysis?.financial_incentives.tax_credits_available === false ? 'No' : ''),
-      escapeCSV(analysis?.financial_incentives.incentive_summary || ''),
-      escapeCSV(analysis?.last_updated ? new Date(analysis.last_updated).toLocaleString() : '')
+      escapeCSV(rawViabilityScore || ''),
+
+      // New Format - Product Analysis
+      escapeCSV(site.primaryProduct || ''),
+      escapeCSV(site.marketPrice?.toLocaleString() || ''),
+      escapeCSV(site.electricityPrice || ''),
+      escapeCSV(site.isNewAnalysisFormat && analysis ?
+        ((analysis as any).can_sell_100_tons_primary_product_within_100_km ? 'Yes' : 'No') : ''),
+      escapeCSV(site.otherViableProducts.join('; ') || ''),
+      escapeCSV(site.otherViableProducts.length || ''),
+
+      // New Format - Financial Incentives
+      escapeCSV(site.availableIncentives.join('; ') || ''),
+      escapeCSV(site.availableIncentives.length || ''),
+
+      // New Format - Analysis Content
+      escapeCSV(site.executiveSummary || ''),
+      escapeCSV(site.businessAnalysis || ''),
+      escapeCSV(site.citedSources.length || ''),
+      escapeCSV(locationName || ''),
+
+      // Legacy Format - Energy Pricing
+      escapeCSV(getLegacyData('energy_pricing.co2_price_per_ton')),
+
+      // Legacy Format - Market Demand
+      escapeCSV(getLegacyData('market_demand.methane_capacity_tons')),
+      escapeCSV(getLegacyData('market_demand.customer_count_within_50km')),
+      escapeCSV(getLegacyData('market_demand.has_pipeline_access') !== '' ?
+        (getLegacyData('market_demand.has_pipeline_access') ? 'Yes' : 'No') : ''),
+      escapeCSV(getLegacyData('market_demand.scalability_rating')),
+
+      // Legacy Format - Financial Incentives
+      escapeCSV(getLegacyData('financial_incentives.available_grants_usd')),
+      escapeCSV(getLegacyData('financial_incentives.tax_credits_available') !== '' ?
+        (getLegacyData('financial_incentives.tax_credits_available') ? 'Yes' : 'No') : ''),
+      escapeCSV(getLegacyData('financial_incentives.incentive_summary')),
+
+      // Metadata
+      escapeCSV(backendSiteId || ''),
+      escapeCSV(analysis?.last_updated ? new Date(analysis.last_updated).toLocaleString() : ''),
+      escapeCSV(new Date().toLocaleString())
     ].join(',');
   });
 

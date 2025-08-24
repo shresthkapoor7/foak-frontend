@@ -1,7 +1,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { Site } from '../../models';
 import { generateSitePDF } from '../../utils';
+import '../common/MarkdownStyles.css';
 
 interface SiteDetailsProps {
   selectedSite: Site | null;
@@ -31,12 +34,14 @@ export const SiteDetails: React.FC<SiteDetailsProps> = ({
     <div
       style={{
         width: isMobile ? '100%' : '400px',
-        height: isMobile ? '50vh' : '100vh',
+        height: isMobile ? '50vh' : '100%',
+        maxHeight: '100%',
         backgroundColor: '#f8f9fa',
         padding: isMobile ? '15px' : '20px',
         borderLeft: isMobile ? 'none' : '1px solid #dee2e6',
         borderTop: isMobile ? '1px solid #dee2e6' : 'none',
         overflowY: 'auto',
+        flex: isMobile ? '0 0 auto' : '0 0 400px'
       }}
     >
               {selectedSite ? (
@@ -137,7 +142,11 @@ export const SiteDetails: React.FC<SiteDetailsProps> = ({
           )}
           <div style={{ marginBottom: '15px' }}>
             <strong>Description:</strong><br />
-            {selectedSite.description}
+            <div className="markdown-content">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {selectedSite.description}
+              </ReactMarkdown>
+            </div>
           </div>
 
           {/* Analysis Section */}
@@ -163,35 +172,138 @@ export const SiteDetails: React.FC<SiteDetailsProps> = ({
                 )}
               </h3>
 
-              {/* Energy Pricing */}
-              <div style={{ marginBottom: '12px' }}>
-                <strong>Energy Pricing:</strong><br />
-                <div style={{ fontSize: '14px', marginLeft: '10px' }}>
-                  Electricity: ${selectedSite.analysis!.energy_pricing.electricity_price_per_kwh}/kWh<br />
-                  CO₂ Credits: ${selectedSite.analysis!.energy_pricing.co2_price_per_ton}/ton
-                </div>
-              </div>
+              {/* Render analysis based on format */}
+              {selectedSite.isNewAnalysisFormat && (
+                <>
+                  {/* Product Analysis */}
+                  <div style={{ marginBottom: '12px' }}>
+                    <strong>Product Analysis:</strong><br />
+                    <div style={{ fontSize: '14px', marginLeft: '10px' }}>
+                      Primary Product: <strong>{selectedSite.primaryProduct}</strong><br />
+                      {selectedSite.marketPrice && (
+                        <>Market Price: ${selectedSite.marketPrice}/ton<br /></>
+                      )}
+                      {selectedSite.electricityPrice && (
+                        <>Electricity Price: ${selectedSite.electricityPrice}/kWh<br /></>
+                      )}
+                      {selectedSite.analysis && (selectedSite.analysis as any).can_sell_100_tons_primary_product_within_100_km !== undefined && (
+                        <>Can sell 100 tons within 100km: {(selectedSite.analysis as any).can_sell_100_tons_primary_product_within_100_km ? '✅ Yes' : '❌ No'}<br /></>
+                      )}
+                    </div>
+                  </div>
 
-              {/* Market Demand */}
-              <div style={{ marginBottom: '12px' }}>
-                <strong>Market Demand:</strong><br />
-                <div style={{ fontSize: '14px', marginLeft: '10px' }}>
-                  Capacity: {selectedSite.analysis!.market_demand.methane_capacity_tons.toLocaleString()} tons/year<br />
-                  Customers (50km): {selectedSite.analysis!.market_demand.customer_count_within_50km}<br />
-                  Pipeline Access: {selectedSite.analysis!.market_demand.has_pipeline_access ? '✅ Yes' : '❌ No'}<br />
-                  Scalability: {selectedSite.analysis!.market_demand.scalability_rating}/5
-                </div>
-              </div>
+                  {/* Other Products */}
+                  {selectedSite.otherViableProducts.length > 0 && (
+                    <div style={{ marginBottom: '12px' }}>
+                      <strong>Other Viable Products:</strong><br />
+                      <div style={{ fontSize: '14px', marginLeft: '10px' }}>
+                        {selectedSite.otherViableProducts.map((product, index) => (
+                          <div key={index}>• {product}</div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
-              {/* Financial Incentives */}
-              <div style={{ marginBottom: '12px' }}>
-                <strong>Financial Incentives:</strong><br />
-                <div style={{ fontSize: '14px', marginLeft: '10px' }}>
-                  Available Grants: ${selectedSite.analysis!.financial_incentives.available_grants_usd.toLocaleString()}<br />
-                  Tax Credits: {selectedSite.analysis!.financial_incentives.tax_credits_available ? '✅ Available' : '❌ Not Available'}<br />
-                  <em>{selectedSite.analysis!.financial_incentives.incentive_summary}</em>
-                </div>
-              </div>
+                  {/* Available Incentives */}
+                  {selectedSite.availableIncentives.length > 0 && (
+                    <div style={{ marginBottom: '12px' }}>
+                      <strong>Available Incentives:</strong><br />
+                      <div style={{ fontSize: '14px', marginLeft: '10px' }}>
+                        {selectedSite.availableIncentives.map((incentive, index) => (
+                          <div key={index} style={{ marginBottom: '4px' }}>• {incentive}</div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Executive Summary */}
+                  {selectedSite.executiveSummary && (
+                    <div style={{ marginBottom: '12px' }}>
+                      <strong>Executive Summary:</strong><br />
+                      <div className="executive-summary" style={{ fontSize: '14px', marginLeft: '10px' }}>
+                        <div className="markdown-content">
+                          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                            {selectedSite.executiveSummary}
+                          </ReactMarkdown>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Business Analysis */}
+                  {selectedSite.businessAnalysis && (
+                    <div style={{ marginBottom: '12px' }}>
+                      <strong>Business Analysis:</strong><br />
+                      <div className="business-analysis" style={{
+                        marginLeft: '10px',
+                        maxHeight: '200px',
+                        overflowY: 'auto',
+                        backgroundColor: '#f8f9fa',
+                        padding: '8px',
+                        borderRadius: '4px',
+                        border: '1px solid #e9ecef'
+                      }}>
+                        <div className="markdown-content">
+                          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                            {selectedSite.businessAnalysis}
+                          </ReactMarkdown>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Cited Sources */}
+                  {selectedSite.citedSources.length > 0 && (
+                    <div style={{ marginBottom: '12px' }}>
+                      <strong>Sources:</strong><br />
+                      <div style={{ fontSize: '12px', marginLeft: '10px' }}>
+                        {selectedSite.citedSources.map((source, index) => (
+                          <div key={index} style={{ marginBottom: '8px' }}>
+                            <div><strong>{index + 1}.</strong> <a href={source.url} target="_blank" rel="noopener noreferrer">{source.url}</a></div>
+                            <div style={{ fontStyle: 'italic', marginLeft: '15px', color: '#6c757d' }}>
+                              "{source.extracted_quote}"
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {selectedSite.isLegacyAnalysisFormat && (
+                <>
+                  {/* Energy Pricing */}
+                  <div style={{ marginBottom: '12px' }}>
+                    <strong>Energy Pricing:</strong><br />
+                    <div style={{ fontSize: '14px', marginLeft: '10px' }}>
+                      Electricity: ${(selectedSite.analysis as any).energy_pricing.electricity_price_per_kwh}/kWh<br />
+                      CO₂ Credits: ${(selectedSite.analysis as any).energy_pricing.co2_price_per_ton}/ton
+                    </div>
+                  </div>
+
+                  {/* Market Demand */}
+                  <div style={{ marginBottom: '12px' }}>
+                    <strong>Market Demand:</strong><br />
+                    <div style={{ fontSize: '14px', marginLeft: '10px' }}>
+                      Capacity: {(selectedSite.analysis as any).market_demand.methane_capacity_tons.toLocaleString()} tons/year<br />
+                      Customers (50km): {(selectedSite.analysis as any).market_demand.customer_count_within_50km}<br />
+                      Pipeline Access: {(selectedSite.analysis as any).market_demand.has_pipeline_access ? '✅ Yes' : '❌ No'}<br />
+                      Scalability: {(selectedSite.analysis as any).market_demand.scalability_rating}/5
+                    </div>
+                  </div>
+
+                  {/* Financial Incentives */}
+                  <div style={{ marginBottom: '12px' }}>
+                    <strong>Financial Incentives:</strong><br />
+                    <div style={{ fontSize: '14px', marginLeft: '10px' }}>
+                      Available Grants: ${(selectedSite.analysis as any).financial_incentives.available_grants_usd.toLocaleString()}<br />
+                      Tax Credits: {(selectedSite.analysis as any).financial_incentives.tax_credits_available ? '✅ Available' : '❌ Not Available'}<br />
+                      <em>{(selectedSite.analysis as any).financial_incentives.incentive_summary}</em>
+                    </div>
+                  </div>
+                </>
+              )}
 
               <div style={{ fontSize: '12px', color: '#6c757d', marginTop: '10px' }}>
                 Last Updated: {new Date(selectedSite.analysis!.last_updated).toLocaleString()}
