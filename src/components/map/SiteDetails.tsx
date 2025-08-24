@@ -142,14 +142,14 @@ export const SiteDetails: React.FC<SiteDetailsProps> = ({
               </details>
             </div>
           )}
-          <div style={{ marginBottom: '15px' }}>
+          {/* <div style={{ marginBottom: '15px' }}>
             <strong>Description:</strong><br />
             <div className="markdown-content">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
                 {selectedSite.description}
               </ReactMarkdown>
             </div>
-          </div>
+          </div> */}
 
           {/* Analysis Section */}
           {selectedSite.hasAnalysis && (
