@@ -166,10 +166,10 @@ export const SiteDetails: React.FC<SiteDetailsProps> = ({
                   <span style={{
                     marginLeft: '10px',
                     fontSize: '14px',
-                    color: selectedSite.profitabilityScore >= 70 ? '#28a745' : selectedSite.profitabilityScore >= 50 ? '#ffc107' : '#dc3545',
+                    color: selectedSite.profitabilityScore >= 7 ? '#28a745' : selectedSite.profitabilityScore >= 5 ? '#ffc107' : '#dc3545',
                     fontWeight: 'bold'
                   }}>
-                    Score: {selectedSite.profitabilityScore.toFixed(0)}/100
+                    Score: {selectedSite.profitabilityScore.toFixed(0)}/10
                   </span>
                 )}
               </h3>
