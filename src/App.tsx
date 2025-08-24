@@ -58,15 +58,12 @@ const Navigation: React.FC = () => {
   return (
     <nav style={navStyle}>
       <Link to="/" style={getNavLinkStyle('/')}>
-        <span>🏠</span>
         Home
       </Link>
       <Link to="/sites" style={getNavLinkStyle('/sites')}>
-        <span>🗺️</span>
         Sites
       </Link>
       <Link to="/chat" style={getNavLinkStyle('/chat')}>
-        <span>💬</span>
         Chat
       </Link>
     </nav>

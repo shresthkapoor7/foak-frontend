@@ -273,7 +273,7 @@ const SitesPage: React.FC = () => {
                 gap: '6px'
               }}
             >
-              👁️ View CSV
+              View CSV
             </button>
 
             <button
@@ -292,7 +292,7 @@ const SitesPage: React.FC = () => {
                 gap: '6px'
               }}
             >
-              📊 Export Sites CSV
+              Export CSV
             </button>
           </div>
         </div>

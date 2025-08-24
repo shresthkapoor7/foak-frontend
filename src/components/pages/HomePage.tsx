@@ -44,31 +44,6 @@ export const HomePage: React.FC = () => {
         zIndex: 2,
         maxWidth: '800px'
       }}>
-        {/* Badge */}
-        <div style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          background: 'rgba(255, 255, 255, 0.15)',
-          backdropFilter: 'blur(10px)',
-          border: '1px solid rgba(255, 255, 255, 0.2)',
-          borderRadius: '25px',
-          padding: '8px 20px',
-          marginBottom: '30px',
-          color: 'white',
-          fontSize: '14px',
-          fontWeight: '500'
-        }}>
-          <div style={{
-            width: '8px',
-            height: '8px',
-            background: '#4ade80',
-            borderRadius: '50%',
-            marginRight: '8px'
-          }} />
-          Powered by Advanced Analytics
-        </div>
-
-        {/* Main heading */}
         <h1 style={{
           fontSize: 'clamp(2.5rem, 8vw, 4.5rem)',
           fontWeight: '700',
@@ -168,53 +143,7 @@ export const HomePage: React.FC = () => {
           >
             AI Assistant
           </Link>
-        </div>
-
-        {/* Feature tabs */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          gap: '24px',
-          flexWrap: 'wrap',
-          marginTop: '40px'
-        }}>
-          {[
-            { label: 'Site Analysis', active: true },
-            { label: 'Market Intelligence', active: false },
-            { label: 'Financial Modeling', active: false },
-            { label: 'AI Insights', active: false }
-          ].map((tab, index) => (
-            <div
-              key={index}
-              style={{
-                padding: '8px 16px',
-                borderRadius: '8px',
-                background: tab.active
-                  ? 'rgba(255, 255, 255, 0.15)'
-                  : 'rgba(255, 255, 255, 0.05)',
-                backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                color: tab.active ? 'white' : 'rgba(255, 255, 255, 0.7)',
-                fontSize: '14px',
-                fontWeight: tab.active ? '600' : '500',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
-                e.currentTarget.style.color = 'white';
-              }}
-              onMouseLeave={(e) => {
-                if (!tab.active) {
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
-                  e.currentTarget.style.color = 'rgba(255, 255, 255, 0.7)';
-                }
-              }}
-            >
-              {tab.label}
-            </div>
-          ))}
-        </div>
+                </div>
       </div>
 
       {/* Bottom showcase */}

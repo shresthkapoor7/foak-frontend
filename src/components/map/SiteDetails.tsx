@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Site } from '../../models';
 import { generateSitePDF } from '../../utils';
+import { SourcesModal } from '../common';
 import '../common/MarkdownStyles.css';
 
 interface SiteDetailsProps {
@@ -22,6 +23,7 @@ export const SiteDetails: React.FC<SiteDetailsProps> = ({
   isMobile,
 }) => {
   const navigate = useNavigate();
+  const [isSourcesModalOpen, setIsSourcesModalOpen] = useState(false);
 
   const handleDownloadPDF = () => {
     if (selectedSite) {
@@ -33,7 +35,7 @@ export const SiteDetails: React.FC<SiteDetailsProps> = ({
   return (
     <div
       style={{
-        width: isMobile ? '100%' : '400px',
+        width: isMobile ? '100%' : '500px',
         height: isMobile ? '50vh' : '100%',
         maxHeight: '100%',
         backgroundColor: '#f8f9fa',
@@ -41,7 +43,7 @@ export const SiteDetails: React.FC<SiteDetailsProps> = ({
         borderLeft: isMobile ? 'none' : '1px solid #dee2e6',
         borderTop: isMobile ? '1px solid #dee2e6' : 'none',
         overflowY: 'auto',
-        flex: isMobile ? '0 0 auto' : '0 0 400px'
+        flex: isMobile ? '0 0 auto' : '0 0 500px'
       }}
     >
               {selectedSite ? (
@@ -255,17 +257,26 @@ export const SiteDetails: React.FC<SiteDetailsProps> = ({
                   {/* Cited Sources */}
                   {selectedSite.citedSources.length > 0 && (
                     <div style={{ marginBottom: '12px' }}>
-                      <strong>Sources:</strong><br />
-                      <div style={{ fontSize: '12px', marginLeft: '10px' }}>
-                        {selectedSite.citedSources.map((source, index) => (
-                          <div key={index} style={{ marginBottom: '8px' }}>
-                            <div><strong>{index + 1}.</strong> <a href={source.url} target="_blank" rel="noopener noreferrer">{source.url}</a></div>
-                            <div style={{ fontStyle: 'italic', marginLeft: '15px', color: '#6c757d' }}>
-                              "{source.extracted_quote}"
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+                      <button
+                        onClick={() => setIsSourcesModalOpen(true)}
+                        style={{
+                          backgroundColor: '#28a745',
+                          color: 'white',
+                          border: 'none',
+                          padding: '8px 16px',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          fontSize: '14px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          fontWeight: '500',
+                          height: '36px',
+                          minHeight: '36px',
+                        }}
+                      >
+                        View Sources ({selectedSite.citedSources.length})
+                      </button>
                     </div>
                   )}
                 </>
@@ -391,6 +402,14 @@ export const SiteDetails: React.FC<SiteDetailsProps> = ({
           </div>
         </div>
       )}
+
+      {/* Sources Modal */}
+      <SourcesModal
+        sources={selectedSite?.citedSources || []}
+        isOpen={isSourcesModalOpen}
+        onClose={() => setIsSourcesModalOpen(false)}
+        isMobile={isMobile}
+      />
     </div>
   );
 };

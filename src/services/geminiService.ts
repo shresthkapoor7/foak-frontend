@@ -1,7 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { Site } from '../models';
 
-// Note: In production, this should be stored in environment variables
 const API_KEY = process.env.REACT_APP_GEMINI_API_KEY || 'your-gemini-api-key-here';
 
 class GeminiService {
@@ -10,7 +9,7 @@ class GeminiService {
 
   constructor() {
     this.genAI = new GoogleGenerativeAI(API_KEY);
-    this.model = this.genAI.getGenerativeModel({ model: 'gemini-pro' });
+    this.model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-pro' });
   }
 
   formatSitesContext(sites: Site[]): string {
