@@ -391,7 +391,7 @@ export const SiteDetails: React.FC<SiteDetailsProps> = ({
                           borderRadius: '2px',
                           fontWeight: 'bold'
                         }}>
-                          📊 {site.profitabilityScore?.toFixed(0)}
+                          {site.profitabilityScore?.toFixed(0)}
                         </span>
                       )}
                     </div>
