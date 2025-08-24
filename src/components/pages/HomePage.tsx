@@ -52,7 +52,7 @@ export const HomePage: React.FC = () => {
           lineHeight: '1.1',
           letterSpacing: '-0.02em'
         }}>
-          It's like analyzing
+          Where should you
           <br />
           <span style={{
             background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
@@ -60,7 +60,7 @@ export const HomePage: React.FC = () => {
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text'
           }}>
-            with an extra brain
+            build next?
           </span>
         </h1>
 
@@ -73,10 +73,19 @@ export const HomePage: React.FC = () => {
           maxWidth: '600px',
           margin: '0 auto 40px auto'
         }}>
-          FOAK is an advanced site analysis platform that provides comprehensive
-          CO2-to-chemical conversion insights. It combines market intelligence,
-          technical feasibility, and financial modeling to identify optimal locations
-          for sustainable chemical production.
+          Site intelligence for carbon capture projects
+        </p>
+
+        {/* Description */}
+        <p style={{
+          fontSize: 'clamp(0.9rem, 2.5vw, 1.1rem)',
+          color: 'rgba(255, 255, 255, 0.7)',
+          marginBottom: '40px',
+          lineHeight: '1.6',
+          maxWidth: '600px',
+          margin: '0 auto 40px auto'
+        }}>
+          Get comprehensive analysis of industrial locations, market data, and financial models to make smarter investment decisions in carbon utilization.
         </p>
 
         {/* Action buttons */}
