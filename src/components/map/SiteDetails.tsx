@@ -349,7 +349,15 @@ export const SiteDetails: React.FC<SiteDetailsProps> = ({
           <div style={{ marginTop: '20px' }}>
             <h3>Available Sites:</h3>
             <ul>
-              {sites.map((site) => (
+              {sites
+                .sort((a, b) => {
+                  // Sort by profitability score (points) in descending order
+                  // Sites without analysis or score go to the bottom
+                  if (!a.hasAnalysis || !a.profitabilityScore) return 1;
+                  if (!b.hasAnalysis || !b.profitabilityScore) return -1;
+                  return b.profitabilityScore - a.profitabilityScore;
+                })
+                .map((site) => (
                 <li
                   key={site.id}
                   style={{
