@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { Site } from '../models';
 
-const API_KEY = process.env.REACT_APP_GEMINI_API_KEY || 'your-gemini-api-key-here';
+const API_KEY = process.env.REACT_APP_GEMINI_API_KEY || 'AIzaSyDrmZIW51xlmYr5vZZVpuL3NcojlfzAma4';
 
 class GeminiService {
   private genAI: GoogleGenerativeAI;
