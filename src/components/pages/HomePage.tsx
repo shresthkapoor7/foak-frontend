@@ -178,7 +178,7 @@ export const HomePage: React.FC = () => {
             borderRadius: '50%',
             animation: 'pulse 2s infinite'
           }} />
-          Live data from 2+ analysis sites
+          Live data from 10+ analysis sites
         </div>
       </div>
 
