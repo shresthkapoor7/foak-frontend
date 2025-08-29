@@ -48,13 +48,14 @@ app.add_middleware(
 
 ### Fallback Behavior:
 
-- If the API fails, the app automatically falls back to sample data
-- You'll see a warning message but the app continues to work
-- All features (map, details, CSV, PDF, AI chat) work with sample data
+- If the API fails, the app will show an error message
+- No data will be available until the API connection is restored
+- All features require a working API connection
 
 ### Current Status:
 
 - ✅ API service implemented
-- ✅ Error handling and fallback
+- ✅ Error handling implemented
 - ✅ CORS proxy option available
 - ⚠️ Backend CORS configuration needed for production
+- ⚠️ No fallback data available - requires working API connection

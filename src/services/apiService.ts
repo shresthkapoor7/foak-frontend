@@ -1,5 +1,5 @@
 import { Site, SiteAnalysis } from '../models';
-import { sampleSites } from '../data/sampleSites';
+
 
 const API_BASE_URL = 'https://foak-backend-production.up.railway.app';
 
@@ -63,10 +63,10 @@ class ApiService {
 
     if (response.error) {
       if (useFallback) {
-        console.warn('API failed, using sample data as fallback');
+        console.warn('API failed, returning empty data');
         return {
-          data: sampleSites,
-          error: `API Error (using sample data): ${response.error}`
+          data: [],
+          error: `API Error: ${response.error}`
         };
       }
       return { data: [], error: response.error };

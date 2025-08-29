@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Site } from '../../models';
 import { apiService } from '../../services/apiService';
-import { sampleSites } from '../../data/sampleSites';
 import { SiteMap } from '../map/SiteMap';
 import { SiteDetails } from '../map/SiteDetails';
 import { CSVViewer } from '../common';
@@ -39,30 +38,22 @@ const SitesPage: React.FC = () => {
     // Effect to fetch sites data from API
   useEffect(() => {
     // TODO: Uncomment when API CORS issues are resolved
-    // const fetchSites = async () => {
-    //   setLoading(true);
-    //   setError(null);
-    //
-    //   const response = await apiService.getLatestSiteAnalyses();
-    //
-    //   if (response.error) {
-    //     setError(response.error);
-    //     setSites([]);
-    //   } else {
-    //     setSites(response.data);
-    //   }
-    //
-    //   setLoading(false);
-    // };
-    // fetchSites();
+    const fetchSites = async () => {
+      setLoading(true);
+      setError(null);
 
-    // Temporarily using sample sites directly
-    setLoading(true);
-    // Simulate loading delay
-    setTimeout(() => {
-      setSites(sampleSites);
+      const response = await apiService.getLatestSiteAnalyses();
+
+      if (response.error) {
+        setError(response.error);
+        setSites([]);
+      } else {
+        setSites(response.data);
+      }
+
       setLoading(false);
-    }, 500);
+    };
+    fetchSites();
   }, []);
 
   // Effect to handle URL parameter changes
@@ -184,7 +175,7 @@ const SitesPage: React.FC = () => {
               <li>Backend server temporarily unavailable</li>
               <li>Network connectivity issues</li>
             </ul>
-            <strong>Note:</strong> If API fails, sample data will be used as fallback.
+            <strong>Note:</strong> If API fails, no data will be available.
           </div>
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center' }}>
             <button

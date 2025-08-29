@@ -1,15 +1,56 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { Site } from '../models';
 
-const API_KEY = process.env.REACT_APP_GEMINI_API_KEY || 'AIzaSyDrmZIW51xlmYr5vZZVpuL3NcojlfzAma4';
+const STORAGE_KEY = 'gemini_api_key';
 
 class GeminiService {
-  private genAI: GoogleGenerativeAI;
-  private model: any;
+  private genAI: GoogleGenerativeAI | null = null;
+  private model: any = null;
+  private apiKey: string | null = null;
 
   constructor() {
-    this.genAI = new GoogleGenerativeAI(API_KEY);
-    this.model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-pro' });
+    // Load API key from localStorage on initialization
+    this.loadApiKeyFromStorage();
+  }
+
+  private loadApiKeyFromStorage() {
+    try {
+      const savedApiKey = localStorage.getItem(STORAGE_KEY);
+      if (savedApiKey) {
+        this.setApiKey(savedApiKey, false); // false = don't save to storage again
+      }
+    } catch (error) {
+      console.warn('Failed to load API key from localStorage:', error);
+    }
+  }
+
+  setApiKey(apiKey: string, saveToStorage: boolean = true) {
+    this.apiKey = apiKey;
+    if (apiKey) {
+      this.genAI = new GoogleGenerativeAI(apiKey);
+      this.model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-pro' });
+
+      // Save to localStorage if requested
+      if (saveToStorage) {
+        try {
+          localStorage.setItem(STORAGE_KEY, apiKey);
+        } catch (error) {
+          console.warn('Failed to save API key to localStorage:', error);
+        }
+      }
+    } else {
+      this.genAI = null;
+      this.model = null;
+
+      // Remove from localStorage if clearing
+      if (saveToStorage) {
+        try {
+          localStorage.removeItem(STORAGE_KEY);
+        } catch (error) {
+          console.warn('Failed to remove API key from localStorage:', error);
+        }
+      }
+    }
   }
 
   formatSitesContext(sites: Site[]): string {
@@ -143,13 +184,17 @@ Site Analysis: Not available - analysis pending or not yet performed.`;
     return context;
   }
 
-      async sendMessage(
+  async sendMessage(
     message: string,
     siteContext?: Site,
     sitesContext?: Site[],
-    conversationHistory?: Array<{role: 'user' | 'assistant', content: string}>
+    conversationHistory?: Array<{ role: 'user' | 'assistant', content: string }>
   ): Promise<string> {
     try {
+      if (!this.apiKey || !this.model) {
+        throw new Error('Gemini API key not configured. Please enter your API key first.');
+      }
+
       let systemPrompt = '';
       let fullPrompt = message;
 
@@ -199,7 +244,19 @@ Please provide a helpful and informative response based on the site data provide
   }
 
   isConfigured(): boolean {
-    return API_KEY !== 'your-gemini-api-key-here' && API_KEY.length > 0;
+    return this.apiKey !== null && this.apiKey.length > 0;
+  }
+
+  getApiKey(): string | null {
+    return this.apiKey;
+  }
+
+  hasStoredApiKey(): boolean {
+    try {
+      return localStorage.getItem(STORAGE_KEY) !== null;
+    } catch (error) {
+      return false;
+    }
   }
 }
 

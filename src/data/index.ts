@@ -1,1 +1,0 @@
-export { sampleSites } from './sampleSites';
