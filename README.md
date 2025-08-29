@@ -1,7 +1,8 @@
-# Foak - Site Analysis
+# Foak – Site Analysis
 
-Our amazing team working on Foak:
+### The Crew
+A bunch of us worked on it, but only a few ended up in the photo:
 
 ![Team Photo](public/team.jpg)
 
-https://luma.com/qsnsqmqs
+🔗 [See it on Luma](https://luma.com/qsnsqmqs)
